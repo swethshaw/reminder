@@ -242,7 +242,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingHorizontal: 10,
     paddingVertical: 6,
-    zIndex: 10, // important for DropDownPicker
+    zIndex: 10,
   },
   sortLabel: {
     fontSize: 18,
