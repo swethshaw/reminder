@@ -67,7 +67,7 @@ const CompletedTasksScreen = () => {
       />
 
       <TouchableOpacity
-        style={[styles.clearButton, { backgroundColor: "#ef4444" }]} // you can theme this too if needed
+        style={[styles.clearButton, { backgroundColor: "#ef4444" }]}
         onPress={handleClearAll}
       >
         <Text style={styles.clearButtonText}>Clear All</Text>
