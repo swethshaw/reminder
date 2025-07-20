@@ -16,7 +16,10 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { toggleComplete } from "../store/tasksSlice";
 import { useTheme } from "../ThemeContext";
 
-if (Platform.OS === "android" && UIManager.setLayoutAnimationEnabledExperimental) {
+if (
+  Platform.OS === "android" &&
+  UIManager.setLayoutAnimationEnabledExperimental
+) {
   UIManager.setLayoutAnimationEnabledExperimental(true);
 }
 
@@ -34,13 +37,19 @@ const Cards = ({ home, setInputVisible, data, setUpdatedData }) => {
       const sorted = [...data];
       switch (sortType) {
         case "time":
-          sorted.sort((a, b) => new Date(a.alarmTime || 0) - new Date(b.alarmTime || 0));
+          sorted.sort(
+            (a, b) => new Date(a.alarmTime || 0) - new Date(b.alarmTime || 0)
+          );
           break;
         case "newest":
-          sorted.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+          sorted.sort(
+            (a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0)
+          );
           break;
         case "oldest":
-          sorted.sort((a, b) => new Date(a.createdAt || 0) - new Date(b.createdAt || 0));
+          sorted.sort(
+            (a, b) => new Date(a.createdAt || 0) - new Date(b.createdAt || 0)
+          );
           break;
         case "az":
           sorted.sort((a, b) => a.title.localeCompare(b.title));
@@ -89,15 +98,25 @@ const Cards = ({ home, setInputVisible, data, setUpdatedData }) => {
     const isExpanded = expandedId === task.id;
     return (
       <TouchableOpacity
-        style={[styles.card, { backgroundColor: isDark ? "#1f2937" : "#e5e7eb" }]}
+        style={[
+          styles.card,
+          { backgroundColor: isDark ? "#1f2937" : "#e5e7eb" },
+        ]}
         activeOpacity={0.8}
         onPress={() => toggleExpand(task.id)}
       >
         <View style={styles.headerRow}>
           <View style={{ flex: 1 }}>
-            <Text style={[styles.title, { color: isDark ? "#fff" : "#111" }]}>{task.title}</Text>
+            <Text style={[styles.title, { color: isDark ? "#fff" : "#111" }]}>
+              {task.title}
+            </Text>
             {task.alarmTime && (
-              <Text style={[styles.remainingTime, { color: isDark ? "#9ca3af" : "#374151" }]}>
+              <Text
+                style={[
+                  styles.remainingTime,
+                  { color: isDark ? "#9ca3af" : "#374151" },
+                ]}
+              >
                 {getRemainingTime(task.alarmTime)}
               </Text>
             )}
@@ -105,17 +124,31 @@ const Cards = ({ home, setInputVisible, data, setUpdatedData }) => {
 
           <View style={styles.iconGroup}>
             {task.important && (
-              <Ionicons name="heart" size={18} color="#ef4444" style={styles.icon} />
+              <Ionicons
+                name="heart"
+                size={18}
+                color="#ef4444"
+                style={styles.icon}
+              />
             )}
             <TouchableOpacity onPress={() => openEditModal(task)}>
-              <Ionicons name="information-circle-outline" size={22} color="#3b82f6" style={styles.icon} />
+              <Ionicons
+                name="information-circle-outline"
+                size={22}
+                color="#3b82f6"
+                style={styles.icon}
+              />
             </TouchableOpacity>
           </View>
         </View>
 
         {isExpanded && (
           <>
-            <Text style={[styles.desc, { color: isDark ? "#d1d5db" : "#111827" }]}>{task.desc}</Text>
+            <Text
+              style={[styles.desc, { color: isDark ? "#d1d5db" : "#111827" }]}
+            >
+              {task.desc}
+            </Text>
             <View style={styles.footerRow}>
               <TouchableOpacity
                 style={[
@@ -136,24 +169,31 @@ const Cards = ({ home, setInputVisible, data, setUpdatedData }) => {
   };
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: isDark ? "#111827" : "#f9fafb" }}>
+    <SafeAreaView
+      style={{ flex: 1, backgroundColor: isDark ? "#111827" : "#f9fafb" }}
+    >
       <View style={styles.container}>
-        <View style={[styles.sortContainer, { backgroundColor: isDark ? "#1f2937" : "#e5e7eb" }]}>
-          <Text style={[styles.sortLabel, { color: isDark ? "#fff" : "#111" }]}>Sort by:</Text>
+        <View
+          style={[
+            styles.sortContainer,
+            { backgroundColor: isDark ? "#1f2937" : "#e5e7eb" },
+          ]}
+        >
+          <Text style={[styles.sortLabel, { color: isDark ? "#fff" : "#111" }]}>
+            Sort by:
+          </Text>
           <Picker
             selectedValue={sortType}
             onValueChange={(value) => setSortType(value)}
             style={[styles.sortPicker, { color: isDark ? "#fff" : "#111" }]}
             dropdownIconColor={isDark ? "#fff" : "#000"}
-            mode="dropdown"
+            mode="dropown"
           >
             <Picker.Item label="Time" value="time" />
             <Picker.Item label="Newest" value="newest" />
             <Picker.Item label="Oldest" value="oldest" />
             <Picker.Item label="A-Z" value="az" />
           </Picker>
-
-
         </View>
 
         <FlatList
@@ -192,14 +232,14 @@ const styles = StyleSheet.create({
   },
   sortLabel: {
     marginRight: 8,
-    fontSize: 16,
+    fontSize: 20,
+    fontWeight: 600,
   },
   sortPicker: {
     flex: 1,
-    marginTop: -8,
   },
   list: {
-    paddingTop: 12,
+    paddingTop: 5,
     paddingBottom: 100,
   },
   card: {
