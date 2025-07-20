@@ -9,12 +9,12 @@ import {
   LayoutAnimation,
   UIManager,
 } from "react-native";
-import { Picker } from "@react-native-picker/picker";
 import { Ionicons } from "@expo/vector-icons";
 import { useDispatch } from "react-redux";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { toggleComplete } from "../store/tasksSlice";
 import { useTheme } from "../ThemeContext";
+import DropDownPicker from "react-native-dropdown-picker";
 
 if (
   Platform.OS === "android" &&
@@ -29,7 +29,15 @@ const Cards = ({ home, setInputVisible, data, setUpdatedData }) => {
   const [sortType, setSortType] = useState("time");
   const [visibleData, setVisibleData] = useState([]);
 
-  const { theme, toggleTheme } = useTheme();
+  const [open, setOpen] = useState(false);
+  const [items, setItems] = useState([
+    { label: "Time", value: "time" },
+    { label: "Newest", value: "newest" },
+    { label: "Oldest", value: "oldest" },
+    { label: "A-Z", value: "az" },
+  ]);
+
+  const { theme } = useTheme();
   const isDark = theme === "dark";
 
   useEffect(() => {
@@ -182,18 +190,23 @@ const Cards = ({ home, setInputVisible, data, setUpdatedData }) => {
           <Text style={[styles.sortLabel, { color: isDark ? "#fff" : "#111" }]}>
             Sort by:
           </Text>
-          <Picker
-            selectedValue={sortType}
-            onValueChange={(value) => setSortType(value)}
-            style={[styles.sortPicker, { color: isDark ? "#fff" : "#111" }]}
-            dropdownIconColor={isDark ? "#fff" : "#000"}
-            mode="dropown"
-          >
-            <Picker.Item label="Time" value="time" />
-            <Picker.Item label="Newest" value="newest" />
-            <Picker.Item label="Oldest" value="oldest" />
-            <Picker.Item label="A-Z" value="az" />
-          </Picker>
+          <DropDownPicker
+            open={open}
+            value={sortType}
+            items={items}
+            setOpen={setOpen}
+            setValue={setSortType}
+            setItems={setItems}
+            theme={isDark ? "DARK" : "LIGHT"}
+            textStyle={{
+              fontSize: 18,
+              color: isDark ? "#fff" : "#111",
+            }}
+            containerStyle={{ flex: 1, marginLeft: 10 }}
+            dropDownContainerStyle={{
+              backgroundColor: isDark ? "#374151" : "#f3f4f6",
+            }}
+          />
         </View>
 
         <FlatList
@@ -229,14 +242,11 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingHorizontal: 10,
     paddingVertical: 6,
+    zIndex: 10, // important for DropDownPicker
   },
   sortLabel: {
-    marginRight: 8,
-    fontSize: 20,
-    fontWeight: 600,
-  },
-  sortPicker: {
-    flex: 1,
+    fontSize: 18,
+    fontWeight: "bold",
   },
   list: {
     paddingTop: 5,

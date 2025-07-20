@@ -21,7 +21,6 @@ import {
   scheduleAlarmNotification,
   cancelAlarmNotification,
 } from "../utils/notifications";
-import { Audio } from "expo-av";
 
 const soundMap = {
   "beep.wav": require("../assets/sounds/beep.wav"),
