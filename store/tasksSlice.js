@@ -13,7 +13,7 @@ const tasksSlice = createSlice({
     addTask: (state, action) => {
       const taskWithUrls = {
         ...action.payload,
-        urls: action.payload.urls || [], // default to empty array if not provided
+        urls: action.payload.urls || [], // Ensure urls always exists
       };
       state.push(taskWithUrls);
       saveTasks(state);
@@ -38,10 +38,11 @@ const tasksSlice = createSlice({
             .catch((err) => console.error("Cancel notification failed", err));
         }
 
+        // Merge old and updated fields without overwriting urls accidentally
         state[index] = {
           ...oldTask,
           ...updatedFields,
-          urls: updatedFields.urls ?? oldTask.urls, // persist or update urls
+          urls: updatedFields.urls !== undefined ? updatedFields.urls : oldTask.urls,
         };
 
         saveTasks(state);
@@ -69,9 +70,7 @@ const tasksSlice = createSlice({
 
         if (task.completed && task.notificationId) {
           Notifications.cancelScheduledNotificationAsync(task.notificationId)
-            .then(() => {
-              console.log("Notification canceled");
-            })
+            .then(() => console.log("Notification canceled"))
             .catch((err) => console.error("Cancel notification failed", err));
         }
 
@@ -109,7 +108,7 @@ const tasksSlice = createSlice({
       const { id, url } = action.payload;
       const task = state.find((t) => t.id === id);
       if (task && url) {
-        task.urls = task.urls?.filter((u) => u !== url) || [];
+        task.urls = (task.urls || []).filter((u) => u !== url);
         saveTasks(state);
       }
     },

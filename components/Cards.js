@@ -17,7 +17,6 @@ import { toggleComplete } from "../store/tasksSlice";
 import { useTheme } from "../ThemeContext";
 import DropDownPicker from "react-native-dropdown-picker";
 
-// Enable layout animation on Android
 if (
   Platform.OS === "android" &&
   UIManager.setLayoutAnimationEnabledExperimental
@@ -25,12 +24,20 @@ if (
   UIManager.setLayoutAnimationEnabledExperimental(true);
 }
 
-// ✅ Extract and validate URLs
-const extractValidUrls = (urlArray) => {
-  if (!Array.isArray(urlArray)) return [];
-  return urlArray.filter(
-    (line) => /^(https?:\/\/)[^\s$.?#].[^\s]*$/.test(line)
-  );
+const extractValidUrls = (urls) => (Array.isArray(urls) ? urls : []);
+
+const formatDate = (date) => {
+  const d = new Date(date);
+  return d.toISOString().split("T")[0];
+};
+
+const getGroupLabel = (dateStr) => {
+  const today = formatDate(new Date());
+  const tomorrow = formatDate(new Date(Date.now() + 86400000));
+  if (!dateStr) return "No Date";
+  if (dateStr === today) return "Today";
+  if (dateStr === tomorrow) return "Tomorrow";
+  return dateStr;
 };
 
 const Cards = ({ home, setInputVisible, data, setUpdatedData }) => {
@@ -45,14 +52,36 @@ const Cards = ({ home, setInputVisible, data, setUpdatedData }) => {
     { label: "Newest", value: "newest" },
     { label: "Oldest", value: "oldest" },
     { label: "A-Z", value: "az" },
+    { label: "Group by Date", value: "grouped" },
   ]);
 
   const { theme } = useTheme();
   const isDark = theme === "dark";
 
   useEffect(() => {
-    if (data?.length) {
-      const sorted = [...data];
+    if (!data?.length) return;
+
+    const sorted = [...data];
+
+    if (sortType === "grouped") {
+      const grouped = {};
+      for (const task of sorted) {
+        const group = getGroupLabel(
+          task.alarmTime ? formatDate(task.alarmTime) : null
+        );
+        if (!grouped[group]) grouped[group] = [];
+        grouped[group].push(task);
+      }
+      // Convert to flat array with section headers
+      const groupedList = [];
+      Object.keys(grouped)
+        .sort((a, b) => new Date(a) - new Date(b))
+        .forEach((group) => {
+          groupedList.push({ isHeader: true, title: group });
+          grouped[group].forEach((task) => groupedList.push({ ...task }));
+        });
+      setVisibleData(groupedList);
+    } else {
       switch (sortType) {
         case "time":
           sorted.sort(
@@ -86,15 +115,13 @@ const Cards = ({ home, setInputVisible, data, setUpdatedData }) => {
     const now = new Date();
     const target = new Date(alarmTime);
     const diff = target - now;
-
     if (diff <= 0) return "⏰ Time's up";
 
     const hours = Math.floor(diff / (1000 * 60 * 60));
     const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-
     if (hours >= 24) {
-      const daysLeft = Math.floor(hours / 24);
-      return `🗓 ${daysLeft} day${daysLeft > 1 ? "s" : ""} left`;
+      const days = Math.floor(hours / 24);
+      return `🗓 ${days} day${days > 1 ? "s" : ""} left`;
     }
 
     return `⏳ ${hours}h ${minutes}m left`;
@@ -114,36 +141,48 @@ const Cards = ({ home, setInputVisible, data, setUpdatedData }) => {
     setInputVisible(true);
   };
 
-  const renderItem = ({ item: task }) => {
-    const isExpanded = expandedId === task.id;
+  const renderItem = ({ item }) => {
+    if (item.isHeader) {
+      return (
+        <Text
+          style={[
+            styles.groupHeader,
+            { color: isDark ? "#fbbf24" : "#b45309" },
+          ]}
+        >
+          {item.title}
+        </Text>
+      );
+    }
+
+    const isExpanded = expandedId === item.id;
     return (
       <TouchableOpacity
         style={[
           styles.card,
           { backgroundColor: isDark ? "#1f2937" : "#e5e7eb" },
         ]}
-        activeOpacity={0.8}
-        onPress={() => toggleExpand(task.id)}
+        onPress={() => toggleExpand(item.id)}
       >
         <View style={styles.headerRow}>
           <View style={{ flex: 1 }}>
             <Text style={[styles.title, { color: isDark ? "#fff" : "#111" }]}>
-              {task.title}
+              {item.title}
             </Text>
-            {task.alarmTime && (
+            {item.alarmTime && (
               <Text
                 style={[
                   styles.remainingTime,
                   { color: isDark ? "#9ca3af" : "#374151" },
                 ]}
               >
-                {getRemainingTime(task.alarmTime)}
+                {getRemainingTime(item.alarmTime)}
               </Text>
             )}
           </View>
 
           <View style={styles.iconGroup}>
-            {task.important && (
+            {item.important && (
               <Ionicons
                 name="heart"
                 size={18}
@@ -151,12 +190,11 @@ const Cards = ({ home, setInputVisible, data, setUpdatedData }) => {
                 style={styles.icon}
               />
             )}
-            <TouchableOpacity onPress={() => openEditModal(task)}>
+            <TouchableOpacity onPress={() => openEditModal(item)}>
               <Ionicons
                 name="information-circle-outline"
                 size={22}
                 color="#3b82f6"
-                style={styles.icon}
               />
             </TouchableOpacity>
           </View>
@@ -167,28 +205,41 @@ const Cards = ({ home, setInputVisible, data, setUpdatedData }) => {
             <Text
               style={[styles.desc, { color: isDark ? "#d1d5db" : "#111827" }]}
             >
-              {task.desc}
+              {item.desc}
             </Text>
+            {extractValidUrls(item.urls).map((urlItem, idx) => {
+  const sanitizedUrl = urlItem.startsWith("http://") || urlItem.startsWith("https://")
+    ? urlItem
+    : `https://${urlItem}`;
 
-            {/* 🔗 Show clickable URLs */}
-            {extractValidUrls(task.urls).map((url, idx) => (
-              <TouchableOpacity key={idx} onPress={() => Linking.openURL(url)}>
-                <Text style={[styles.link, { color: isDark ? "#60a5fa" : "#2563eb" }]}>
-                  🔗 {url}
-                </Text>
-              </TouchableOpacity>
-            ))}
-
+  return (
+    <TouchableOpacity
+      key={idx}
+      onPress={async () => {
+        const supported = await Linking.canOpenURL(sanitizedUrl);
+        if (supported) {
+          await Linking.openURL(sanitizedUrl);
+        } else {
+          Alert.alert("Invalid URL", `Can't open: ${sanitizedUrl}`);
+        }
+      }}
+    >
+      <Text style={[styles.link, { color: isDark ? "#60a5fa" : "#2563eb" }]}>
+        {urlItem}
+      </Text>
+    </TouchableOpacity>
+  );
+})}
             <View style={styles.footerRow}>
               <TouchableOpacity
                 style={[
                   styles.statusButton,
-                  { backgroundColor: task.completed ? "#047857" : "#f87171" },
+                  { backgroundColor: item.completed ? "#047857" : "#f87171" },
                 ]}
-                onPress={() => dispatch(toggleComplete(task.id))}
+                onPress={() => dispatch(toggleComplete(item.id))}
               >
                 <Text style={styles.statusText}>
-                  {task.completed ? "Completed" : "Incomplete"}
+                  {item.completed ? "Completed" : "Incomplete"}
                 </Text>
               </TouchableOpacity>
             </View>
@@ -220,10 +271,7 @@ const Cards = ({ home, setInputVisible, data, setUpdatedData }) => {
             setValue={setSortType}
             setItems={setItems}
             theme={isDark ? "DARK" : "LIGHT"}
-            textStyle={{
-              fontSize: 18,
-              color: isDark ? "#fff" : "#111",
-            }}
+            textStyle={{ fontSize: 18, color: isDark ? "#fff" : "#111" }}
             containerStyle={{ flex: 1, marginLeft: 10 }}
             dropDownContainerStyle={{
               backgroundColor: isDark ? "#374151" : "#f3f4f6",
@@ -233,7 +281,9 @@ const Cards = ({ home, setInputVisible, data, setUpdatedData }) => {
 
         <FlatList
           data={visibleData}
-          keyExtractor={(item) => item.id.toString()}
+          keyExtractor={(item, index) =>
+            item.id?.toString() ?? `header-${index}`
+          }
           renderItem={renderItem}
           contentContainerStyle={styles.list}
           showsVerticalScrollIndicator={false}
@@ -255,10 +305,7 @@ const Cards = ({ home, setInputVisible, data, setUpdatedData }) => {
 export default Cards;
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    position: "relative",
-  },
+  container: { flex: 1 },
   sortContainer: {
     flexDirection: "row",
     alignItems: "center",
@@ -336,6 +383,14 @@ const styles = StyleSheet.create({
     textDecorationLine: "underline",
     marginBottom: 4,
     marginLeft: 4,
-    fontSize: 14,
+    fontSize: 16,
+    fontWeight: 500,
+  },
+  groupHeader: {
+    fontSize: 18,
+    fontWeight: "bold",
+    marginTop: 12,
+    marginBottom: 4,
+    marginHorizontal: 8,
   },
 });

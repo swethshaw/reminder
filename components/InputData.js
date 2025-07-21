@@ -39,7 +39,6 @@ const playSound = async (soundFile) => {
 
     const { sound } = await Audio.Sound.createAsync(source);
     await sound.playAsync();
-
     sound.setOnPlaybackStatusUpdate((status) => {
       if (status.didJustFinish) {
         sound.unloadAsync();
@@ -59,6 +58,7 @@ const InputData = ({ visible, setVisible, updatedData, setUpdatedData }) => {
     alarmTime: null,
     notificationId: null,
     sound: "default",
+    link: "",
   });
 
   const [enableDate, setEnableDate] = useState(false);
@@ -81,6 +81,7 @@ const InputData = ({ visible, setVisible, updatedData, setUpdatedData }) => {
           alarmTime: alarm,
           notificationId: updatedData.notificationId || null,
           sound: updatedData.sound || "default",
+          link: (updatedData.urls || []).join(" "),
         });
 
         if (alarm) {
@@ -102,6 +103,7 @@ const InputData = ({ visible, setVisible, updatedData, setUpdatedData }) => {
       alarmTime: null,
       notificationId: null,
       sound: "default",
+      link: "",
     });
     setEnableDate(false);
     setEnableTime(false);
@@ -136,6 +138,7 @@ const InputData = ({ visible, setVisible, updatedData, setUpdatedData }) => {
   const handleSubmit = async () => {
     const currentErrors = {};
     if (!form.title.trim()) currentErrors.title = true;
+
     if (Object.keys(currentErrors).length > 0) {
       setErrors(currentErrors);
       return;
@@ -152,6 +155,7 @@ const InputData = ({ visible, setVisible, updatedData, setUpdatedData }) => {
       }
       alarm.setSeconds(0, 0);
     }
+
     const alarmTime = enableDate || enableTime ? alarm : null;
     if (updatedData?.notificationId) {
       await cancelAlarmNotification(updatedData.notificationId);
@@ -166,10 +170,11 @@ const InputData = ({ visible, setVisible, updatedData, setUpdatedData }) => {
       : null;
 
     const payload = {
-      ...form,
-      alarmTime: alarmTime ? new Date(alarmTime).toISOString() : null,
-      notificationId,
-    };
+  ...form,
+  alarmTime: alarmTime ? new Date(alarmTime).toISOString() : null,
+  notificationId,
+  urls: form.link ? form.link.trim().split(/\s+/) : [],
+};
 
     if (updatedData?.id) {
       dispatch(updateTask({ id: updatedData.id, ...payload }));
@@ -238,19 +243,27 @@ const InputData = ({ visible, setVisible, updatedData, setUpdatedData }) => {
             />
 
             <TextInput
-              style={[
-                styles.input,
-                styles.descInput,
-                errors.desc && styles.errorInput,
-              ]}
+              style={[styles.input, styles.descInput]}
               placeholder="Description"
               placeholderTextColor="#ccc"
               value={form.desc}
               multiline
+              onChangeText={(text) =>
+                setForm((prev) => ({ ...prev, desc: text }))
+              }
+            />
+
+            <TextInput
+              style={[styles.input]}
+              placeholder="Optional Link (e.g. https://...)"
+              placeholderTextColor="#ccc"
+              value={form.link}
               onChangeText={(text) => {
-                setForm((prev) => ({ ...prev, desc: text }));
-                setErrors((e) => ({ ...e, desc: false }));
+                setForm((prev) => ({ ...prev, link: text }));
               }}
+              autoCapitalize="none"
+              autoCorrect={false}
+              keyboardType="url"
             />
 
             <View style={styles.switchRow}>
