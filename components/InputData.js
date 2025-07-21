@@ -359,7 +359,7 @@ const InputData = ({ visible, setVisible, updatedData, setUpdatedData }) => {
                     onPress={() => playSound(form.sound)}
                     style={styles.previewButton}
                   >
-                    <Text style={styles.previewText}>▶️ Preview Sound</Text>
+                    <Text style={styles.previewsound}>▶️ Preview Sound</Text>
                   </TouchableOpacity>
                 )}
               </View>
@@ -434,9 +434,16 @@ const styles = StyleSheet.create({
   },
   previewText: {
     color: "#9ca3af",
-    fontSize: 14,
+    fontSize: 16,
     marginBottom: 8,
     marginLeft: 4,
+    fontWeight:600,
+  },
+  previewsound: {
+    color: "#9ca3af",
+    fontSize: 14,
+    margin: 5,
+    fontWeight:500,
   },
   submitButton: {
     backgroundColor: "#3b82f6",
