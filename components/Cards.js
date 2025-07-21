@@ -8,6 +8,7 @@ import {
   FlatList,
   LayoutAnimation,
   UIManager,
+  Linking,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useDispatch } from "react-redux";
@@ -16,12 +17,21 @@ import { toggleComplete } from "../store/tasksSlice";
 import { useTheme } from "../ThemeContext";
 import DropDownPicker from "react-native-dropdown-picker";
 
+// Enable layout animation on Android
 if (
   Platform.OS === "android" &&
   UIManager.setLayoutAnimationEnabledExperimental
 ) {
   UIManager.setLayoutAnimationEnabledExperimental(true);
 }
+
+// ✅ Extract and validate URLs
+const extractValidUrls = (urlArray) => {
+  if (!Array.isArray(urlArray)) return [];
+  return urlArray.filter(
+    (line) => /^(https?:\/\/)[^\s$.?#].[^\s]*$/.test(line)
+  );
+};
 
 const Cards = ({ home, setInputVisible, data, setUpdatedData }) => {
   const dispatch = useDispatch();
@@ -98,6 +108,8 @@ const Cards = ({ home, setInputVisible, data, setUpdatedData }) => {
       important: task.important,
       alarmTime: task.alarmTime,
       notificationId: task.notificationId,
+      sound: task.sound,
+      urls: task.urls,
     });
     setInputVisible(true);
   };
@@ -157,6 +169,16 @@ const Cards = ({ home, setInputVisible, data, setUpdatedData }) => {
             >
               {task.desc}
             </Text>
+
+            {/* 🔗 Show clickable URLs */}
+            {extractValidUrls(task.urls).map((url, idx) => (
+              <TouchableOpacity key={idx} onPress={() => Linking.openURL(url)}>
+                <Text style={[styles.link, { color: isDark ? "#60a5fa" : "#2563eb" }]}>
+                  🔗 {url}
+                </Text>
+              </TouchableOpacity>
+            ))}
+
             <View style={styles.footerRow}>
               <TouchableOpacity
                 style={[
@@ -309,5 +331,11 @@ const styles = StyleSheet.create({
   },
   icon: {
     marginLeft: 8,
+  },
+  link: {
+    textDecorationLine: "underline",
+    marginBottom: 4,
+    marginLeft: 4,
+    fontSize: 14,
   },
 });

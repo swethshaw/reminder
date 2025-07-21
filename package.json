@@ -17,6 +17,7 @@
     "@react-navigation/native": "^7.1.14",
     "@reduxjs/toolkit": "^2.8.2",
     "expo": "~53.0.17",
+    "expo-audio": "^0.4.8",
     "expo-av": "~15.1.7",
     "expo-dev-client": "~5.2.4",
     "expo-device": "~7.1.4",

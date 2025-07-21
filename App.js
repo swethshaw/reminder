@@ -1,12 +1,12 @@
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import { NavigationContainer, useNavigationContainerRef } from "@react-navigation/native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { StatusBar } from "expo-status-bar";
+import { StatusBar as ExpoStatusBar } from "expo-status-bar";
+import { StatusBar as RNStatusBar, Platform } from "react-native";
 import { Provider, useDispatch } from "react-redux";
 import { Ionicons } from "@expo/vector-icons";
 import * as Notifications from "expo-notifications";
-import { Platform } from "react-native";
 
 import store from "./store/store";
 import { loadTasks } from "./utils/storage";
@@ -24,7 +24,8 @@ import { lightTheme, darkTheme } from "./themes";
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
-    shouldShowAlert: true,
+    shouldShowBanner: true,
+    shouldShowList: true,
     shouldPlaySound: true,
     shouldSetBadge: false,
   }),
@@ -35,19 +36,21 @@ const Tab = createBottomTabNavigator();
 const InitApp = ({ setHeaderTitle }) => {
   const dispatch = useDispatch();
   const { theme } = useTheme();
-  const currentTheme = theme === "dark" ? darkTheme : lightTheme;
   const navRef = useNavigationContainerRef();
+  const currentTheme = theme === "dark" ? darkTheme : lightTheme;
 
-  React.useEffect(() => {
+  useEffect(() => {
     (async () => {
       if (Platform.OS === "android") {
         await configureNotificationChannel();
+
+        RNStatusBar.setBackgroundColor(currentTheme.background, true);
       }
 
-      const { granted } = await Notifications.getPermissionsAsync();
-      if (!granted) {
-        const { status } = await Notifications.requestPermissionsAsync();
-        if (status !== "granted") {
+      const permissions = await Notifications.getPermissionsAsync();
+      if (!permissions.granted) {
+        const request = await Notifications.requestPermissionsAsync();
+        if (!request.granted) {
           alert("Please enable notifications to use the alarm feature.");
         }
       }
@@ -62,28 +65,28 @@ const InitApp = ({ setHeaderTitle }) => {
       ref={navRef}
       onReady={() => {
         const route = navRef.getCurrentRoute();
-        setHeaderTitle(route.name);
+        if (route) setHeaderTitle(route.name);
       }}
       onStateChange={() => {
         const route = navRef.getCurrentRoute();
-        setHeaderTitle(route.name);
+        if (route) setHeaderTitle(route.name);
       }}
     >
-      <StatusBar style={theme === "dark" ? "light" : "dark"} />
+      <ExpoStatusBar style={theme === "dark" ? "light" : "dark"} />
       <Tab.Navigator
         initialRouteName="All"
         screenOptions={({ route }) => ({
           headerShown: false,
           tabBarStyle: {
-      backgroundColor: currentTheme.tabBackground,
-      borderTopColor: currentTheme.card,
-      paddingBottom: 5,
-      height: 65,
-    },
-    tabBarLabelStyle: {
-      fontSize: 15,
-      fontWeight: "600",
-    },
+            backgroundColor: currentTheme.tabBackground,
+            borderTopColor: currentTheme.card,
+            paddingBottom: 5,
+            height: 65,
+          },
+          tabBarLabelStyle: {
+            fontSize: 15,
+            fontWeight: "600",
+          },
           tabBarActiveTintColor: currentTheme.tabActive,
           tabBarInactiveTintColor: currentTheme.tabInactive,
           tabBarIcon: ({ color, size }) => {
@@ -119,6 +122,7 @@ const InitApp = ({ setHeaderTitle }) => {
 
 const App = () => {
   const [headerTitle, setHeaderTitle] = useState("All Tasks");
+
   const titleMap = {
     All: "All Tasks",
     Important: "Important Tasks",

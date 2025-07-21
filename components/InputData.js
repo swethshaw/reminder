@@ -21,6 +21,7 @@ import {
   scheduleAlarmNotification,
   cancelAlarmNotification,
 } from "../utils/notifications";
+import { Audio } from "expo-audio";
 
 const soundMap = {
   "beep.wav": require("../assets/sounds/beep.wav"),
@@ -48,7 +49,6 @@ const playSound = async (soundFile) => {
     console.error("Error playing sound:", error);
   }
 };
-
 
 const InputData = ({ visible, setVisible, updatedData, setUpdatedData }) => {
   const dispatch = useDispatch();
@@ -136,7 +136,6 @@ const InputData = ({ visible, setVisible, updatedData, setUpdatedData }) => {
   const handleSubmit = async () => {
     const currentErrors = {};
     if (!form.title.trim()) currentErrors.title = true;
-    if (!form.desc.trim()) currentErrors.desc = true;
     if (Object.keys(currentErrors).length > 0) {
       setErrors(currentErrors);
       return;
@@ -268,7 +267,10 @@ const InputData = ({ visible, setVisible, updatedData, setUpdatedData }) => {
               <Text style={styles.switchLabel}>Set Date</Text>
               <Switch
                 value={enableDate}
-                onValueChange={(v) => setEnableDate(v)}
+                onValueChange={(v) => {
+                  setEnableDate(v);
+                  if (v) setShowDatePicker(true);
+                }}
               />
             </View>
 
@@ -295,7 +297,10 @@ const InputData = ({ visible, setVisible, updatedData, setUpdatedData }) => {
               <Text style={styles.switchLabel}>Set Time</Text>
               <Switch
                 value={enableTime}
-                onValueChange={(v) => setEnableTime(v)}
+                onValueChange={(v) => {
+                  setEnableTime(v);
+                  if (v) setShowTimePicker(true);
+                }}
               />
             </View>
 

@@ -14,9 +14,12 @@ export const configureNotificationChannel = async (sound = "default") => {
         vibrationPattern: [0, 500, 1000],
         lightColor: "#FF231F7C",
         bypassDnd: true,
+        lockscreenVisibility: Notifications.AndroidNotificationVisibility.PUBLIC,
       });
 
-      console.log(`Notification channel configured with sound: ${channelSound || "default"}`);
+      console.log(
+        `Notification channel 'alarm' configured with sound: ${channelSound || "default"}`
+      );
     } catch (error) {
       console.error("Failed to configure notification channel:", error);
     }
@@ -27,20 +30,18 @@ export const scheduleAlarmNotification = async (title, time, sound = "default") 
   if (!time || new Date(time) < new Date()) return null;
 
   try {
-    let notificationContent = {
+    const content = {
       title: "🔔 Reminder",
       body: `Reminder: ${title}`,
+      sound: Platform.OS === "android" ? undefined : sound,
     };
 
     if (Platform.OS === "android") {
       await configureNotificationChannel(sound);
-      notificationContent.sound = undefined;
-    } else {
-      notificationContent.sound = sound === "default" ? "default" : sound;
     }
 
     const id = await Notifications.scheduleNotificationAsync({
-      content: notificationContent,
+      content,
       trigger: {
         date: new Date(time),
         channelId: "alarm",

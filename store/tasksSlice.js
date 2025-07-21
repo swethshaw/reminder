@@ -11,7 +11,11 @@ const tasksSlice = createSlice({
     },
 
     addTask: (state, action) => {
-      state.push(action.payload);
+      const taskWithUrls = {
+        ...action.payload,
+        urls: action.payload.urls || [], // default to empty array if not provided
+      };
+      state.push(taskWithUrls);
       saveTasks(state);
     },
 
@@ -34,7 +38,12 @@ const tasksSlice = createSlice({
             .catch((err) => console.error("Cancel notification failed", err));
         }
 
-        state[index] = { ...oldTask, ...updatedFields };
+        state[index] = {
+          ...oldTask,
+          ...updatedFields,
+          urls: updatedFields.urls ?? oldTask.urls, // persist or update urls
+        };
+
         saveTasks(state);
       }
     },
@@ -83,6 +92,27 @@ const tasksSlice = createSlice({
       saveTasks(filtered);
       return filtered;
     },
+
+    addUrlToTask: (state, action) => {
+      const { id, url } = action.payload;
+      const task = state.find((t) => t.id === id);
+      if (task && url) {
+        task.urls = task.urls || [];
+        if (!task.urls.includes(url)) {
+          task.urls.push(url);
+          saveTasks(state);
+        }
+      }
+    },
+
+    removeUrlFromTask: (state, action) => {
+      const { id, url } = action.payload;
+      const task = state.find((t) => t.id === id);
+      if (task && url) {
+        task.urls = task.urls?.filter((u) => u !== url) || [];
+        saveTasks(state);
+      }
+    },
   },
 });
 
@@ -94,6 +124,8 @@ export const {
   toggleComplete,
   toggleImportant,
   clearCompletedTasks,
+  addUrlToTask,
+  removeUrlFromTask,
 } = tasksSlice.actions;
 
 export default tasksSlice.reducer;
