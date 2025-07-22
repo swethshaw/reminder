@@ -13,7 +13,7 @@ const tasksSlice = createSlice({
     addTask: (state, action) => {
       const taskWithUrls = {
         ...action.payload,
-        urls: action.payload.urls || [], // Ensure urls always exists
+        urls: action.payload.urls || [],
       };
       state.push(taskWithUrls);
       saveTasks(state);
@@ -38,7 +38,6 @@ const tasksSlice = createSlice({
             .catch((err) => console.error("Cancel notification failed", err));
         }
 
-        // Merge old and updated fields without overwriting urls accidentally
         state[index] = {
           ...oldTask,
           ...updatedFields,
