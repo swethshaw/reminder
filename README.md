@@ -63,44 +63,24 @@ root
 ## 🚀 Getting Started
 
 ### **1. Clone the Repository**
-
-```bash
 git clone https://github.com/swethshaw/reminder.git
 cd reminder
-2. Install Dependencies
-bash
-Copy code
+### **2. Install Dependencies**
 npm install
-or
-
-bash
-Copy code
-yarn install
-3. Run the App
+### **3. Run the App**
 If using Expo:
-
-bash
-Copy code
 npx expo start
-If using React Native CLI (Android):
-
-bash
-Copy code
+### **If using React Native CLI (Android):**
 npx react-native run-android
-💡 Usage
+##💡 Usage
 Add a new task using the input field
-
 Mark a task as important
-
 View tasks in categorized screens
-
 Swipe/edit/delete tasks
-
 Notifications appear when a reminder time is reached
-
 Theme changes automatically between light/dark modes
 
-🧠 Tech Stack
+##🧠 Tech Stack
 React Native
 
 Expo
@@ -115,39 +95,27 @@ Custom Theme Context
 
 Android Native Files Included
 
-🔔 Notifications
+##🔔 Notifications
 Notifications are handled inside:
-
-bash
-Copy code
 utils/notifications.js
 This includes:
-
 Asking permissions
-
 Scheduling notifications
-
 Canceling notifications
 
-💾 Storage
+##💾 Storage
 Persistent local storage uses AsyncStorage.
-
 Implemented in:
-
-bash
-Copy code
 utils/storage.js
-🛠 Build (Android)
-If using EAS Build:
 
-bash
-Copy code
+##🛠 Build (Android)
+If using EAS Build:
 eas build -p android
 Make sure your eas.json is configured.
 
-📚 Contributing
+##📚 Contributing
 Pull requests and improvements are welcome!
 If making major changes, create an issue first to discuss ideas.
 
-📄 License
+##📄 License
 This project is intended for personal and educational use.
