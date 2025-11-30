@@ -63,39 +63,33 @@ root
 ## 🚀 Getting Started
 
 ### **1. Clone the Repository**
-git clone https://github.com/swethshaw/reminder.git
-cd reminder
+- git clone https://github.com/swethshaw/reminder.git
+- cd reminder
 ### **2. Install Dependencies**
-npm install
+- npm install
 ### **3. Run the App**
 If using Expo:
-npx expo start
+- npx expo start
 ### **If using React Native CLI (Android):**
-npx react-native run-android
+- npx react-native run-android
 ##💡 Usage
-Add a new task using the input field
-Mark a task as important
-View tasks in categorized screens
-Swipe/edit/delete tasks
-Notifications appear when a reminder time is reached
-Theme changes automatically between light/dark modes
+- Add a new task using the input field
+- Mark a task as important
+- View tasks in categorized screens
+- Swipe/edit/delete tasks
+- Notifications appear when a reminder time is reached
+- Theme changes automatically between light/dark modes
 
-##🧠 Tech Stack
-React Native
+## 🧠 Tech Stack
+- React Native
+- Expo
+- Redux Toolkit
+- AsyncStorage
+- Expo Notifications
+- Custom Theme Context
+- Android Native Files Included
 
-Expo
-
-Redux Toolkit
-
-AsyncStorage
-
-Expo Notifications
-
-Custom Theme Context
-
-Android Native Files Included
-
-##🔔 Notifications
+## 🔔 Notifications
 Notifications are handled inside:
 utils/notifications.js
 This includes:
@@ -103,19 +97,19 @@ Asking permissions
 Scheduling notifications
 Canceling notifications
 
-##💾 Storage
+## 💾 Storage
 Persistent local storage uses AsyncStorage.
 Implemented in:
 utils/storage.js
 
-##🛠 Build (Android)
+## 🛠 Build (Android)
 If using EAS Build:
 eas build -p android
 Make sure your eas.json is configured.
 
-##📚 Contributing
+## 📚 Contributing
 Pull requests and improvements are welcome!
 If making major changes, create an issue first to discuss ideas.
 
-##📄 License
+## 📄 License
 This project is intended for personal and educational use.
