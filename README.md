@@ -91,25 +91,25 @@ If using Expo:
 
 ## 🔔 Notifications
 Notifications are handled inside:
-utils/notifications.js
+- utils/notifications.js
 This includes:
-Asking permissions
-Scheduling notifications
-Canceling notifications
+- Asking permissions
+- Scheduling notifications
+- Canceling notifications
 
 ## 💾 Storage
-Persistent local storage uses AsyncStorage.
+- Persistent local storage uses AsyncStorage.
 Implemented in:
-utils/storage.js
+- utils/storage.js
 
 ## 🛠 Build (Android)
 If using EAS Build:
-eas build -p android
-Make sure your eas.json is configured.
+- eas build -p android
+- Make sure your eas.json is configured.
 
 ## 📚 Contributing
-Pull requests and improvements are welcome!
-If making major changes, create an issue first to discuss ideas.
+- Pull requests and improvements are welcome!
+- If making major changes, create an issue first to discuss ideas.
 
 ## 📄 License
 This project is intended for personal and educational use.
